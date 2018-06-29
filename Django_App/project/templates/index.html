@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load staticfiles %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Speech Emotion controlled Robot</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Start your project here-->
+    <header>
+        <nav class="nav black lighten-4 py-4">
+            <div style="width:100%;">
+                <h2 style="color:white;" align="center">
+                    Speech-Emotion controlled Robot using IBM Watson
+                </h2>
+            </div>
+        </nav>
+    </header>
+
+    <br/>
+    <main>
+    <div align="center">
+        <div class="card text-center" style="width: 60%;">
+            <div class="card-header primary-color white-text">
+                DASHBOARD
+            </div>
+
+            <div class="card-body">
+                <h4 class="card-title">Record Audio</h4>
+                <p class="card-text">Press the submit button for emotion detection.</p>
+
+<!-- HTML5 Speech Recognition API -->
+<script>
+var $ = jQuery;
+function startDictation() {
+ if (window.hasOwnProperty('webkitSpeechRecognition')) {
+ var recognition = new webkitSpeechRecognition();
+ recognition.continuous = false;
+ recognition.interimResults = false;
+ recognition.lang = "en-US";
+ recognition.start();
+
+ recognition.onstart = function() {
+ document.getElementById('transcript').value= 'Say Something..';
+ }
+ recognition.onresult = function(e) {
+ document.getElementById('transcript').value= e.results[0][0].transcript;
+ recognition.stop();
+ };
+ recognition.onerror = function(e) {
+ alert('Somthing went wrong. Please try again.')
+ document.getElementById('transcript').value= '';
+ recognition.stop();
+ }
+ }
+}
+</script>
+
+
+<form id="sendDataForm" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+                <img onclick="startDictation()" src="//i.imgur.com/cHidSVu.gif" /><br/>
+                    <textarea style="width:90%;" id="transcript" name="transcript">
+                    </textarea>
+                <br/><br/>
+                COM port :
+                <select id="comport">
+                    {% for i in serialport %}
+                        <option>{{ i }}</option>
+                    {% endfor %}
+
+                </select><br/><br/>
+                        <button type="submit" class="btn btn-primary btn-sm">SUBMIT</button>
+</form>
+            </div>
+                <div>
+                    Forward - 'Fear', Backward - 'Sadness', Left - 'Joy', Right - 'Anger', Stop - 'Others'
+                </div>
+            <div class="card-footer text-muted elegant-color white-text">
+                <p id="output" class="mb-0">Robot command output is shown here. (if connected) </p>
+            </div>
+        </div>
+
+        <br/>
+
+        <div class="card text-center" style="width: 60%;">
+            <div class="card-header primary-color white-text">
+                SETTINGS
+            </div>
+
+            <div class="card-body">
+                <h4 class="card-title">Enter your IBM Bluemix Developer API key </h4>
+                <p class="card-text">
+
+                    With supporting text below as a natural lead-in to additional content.
+                    <form method="post" id="settingsForm" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="md-form">
+                            <input required="required" type="text"  id="username" name="username"  class="form-control" value="{{usn}}">
+                            <label for="username" class="font-weight-light">Username</label>
+                        </div>
+
+                        <div class="md-form">
+                            <input required="required" type="password" id="password" name="password"  class="form-control" value='{{ passw }}'>
+                            <label for="password" class="font-weight-light">Password</label>
+                        </div>
+
+                        <div class="md-form">
+                            <input required="required" type="text" id="version" name="version"  class="form-control" value='{{ vers }}'>
+                            <label for="version" class="font-weight-light">Version</label>
+                        </div>
+                            <button type="submit" class="btn btn-primary btn-sm">UPDATE</button>
+
+                    </form>
+                </p>
+
+            </div>
+
+            <div class="card-footer text-muted elegant-color white-text">
+                <p class="mb-0">Note: Remember to add the IBM Watson API keys properly. (Get your account <a style="color:white;" href="https://console.bluemix.net/"><u>here</u></a>)</p>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <footer class="page-footer font-small blue pt-4 mt-4">
+        <!-- Copyright -->
+          <div class="footer-copyright text-center py-3">© 2018 Copyright</div>
+    </footer>
+
+    <script type="text/javascript">
+
+$('#sendDataForm').submit(function(event) {
+event.preventDefault();
+var $ = jQuery;
+var d = document.getElementById('comport');
+if (typeof d[d.selectedIndex] == 'undefined')
+{
+alert("No com port defined.");
+return false
+}
+else
+var h = d[d.selectedIndex].value;
+    if ($('textarea[name=transcript]').val().trim() == ""){
+    alert("Empty textarea.")
+        return false
+        }
+var request = $.ajax({
+    url: 'emotion_detection/',
+    type: 'POST',
+    data: {  textInput: $('textarea[name=transcript]').val().trim(),
+             comPort: h,
+        },
+});
+
+request.done(function(data) {
+      // your success code here
+        if(data == "False"){
+        alert("Some error while determining emotion from text.");
+        }
+        else{
+            document.getElementById('output').innerHTML  = data;
+        }
+});
+
+request.fail(function(jqXHR, textStatus) {
+      // your failure code here
+      alert("Some error occurred while sending data.");
+});
+            });
+</script>
+
+    <!-- SCRIPTS -->
+    <!-- JQuery -->
+    <script type="text/javascript" src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="{% static 'js/popper.min.js' %}"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="{% static 'js/mdb.min.js' %}"></script>
+
+    <script type="text/javascript">
+
+$('#settingsForm').submit(function(event) {
+var $ = jQuery;
+var request = $.ajax({
+    url: 'api/',
+    type: 'POST',
+    data: {  username: $('input[name=username]').val(),
+        password:  $('input[name=password]').val(),
+        version:  $('input[name=version]').val(),
+        },
+});
+
+request.done(function(data) {
+      // your success code here
+        if(data == "False"){
+        alert("Error!!! Check your credentials.");
+        }
+        else if(data == "True"){
+            alert("Successfully changed!!!");
+            window.location.reload();
+        }
+});
+
+request.fail(function(jqXHR, textStatus) {
+      // your failure code here
+      alert("Some error occurred while sending data.");
+});
+
+
+
+    return false;
+            });
+    </script>
+</body>
+
+</html>
