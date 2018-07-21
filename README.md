@@ -1,8 +1,8 @@
 "# Emotion controlled arduino mobile robot using IBM Watson Tone Analyzer" 
 @Developer's':
-  Mexson Fernandes
-  Sandeep Kumar singh
-  Kaustubh Prabhu
+  Mexson Fernandes,
+  Sandeep Kumar singh,
+  Kaustubh Prabhu,
   Dinesh Sharma
   
   Developer's Message::
