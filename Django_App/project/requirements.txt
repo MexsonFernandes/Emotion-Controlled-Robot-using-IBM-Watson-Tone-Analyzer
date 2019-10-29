@@ -20,7 +20,7 @@ pycparser==2.18
 pyOpenSSL==18.0.0
 python-dateutil==2.7.3
 pytz==2018.4
-PyYAML==3.12
+PyYAML==5.1
 requests==2.19.1
 serial==0.0.66
 service-identity==17.0.0
