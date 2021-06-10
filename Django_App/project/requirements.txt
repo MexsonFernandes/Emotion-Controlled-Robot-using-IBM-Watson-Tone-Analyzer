@@ -7,7 +7,7 @@ cffi==1.11.5
 chardet==3.0.4
 constantly==15.1.0
 cryptography==3.3.2
-Django==1.11.29
+Django==2.2.24
 future==0.16.0
 hyperlink==18.0.0
 idna==2.7
